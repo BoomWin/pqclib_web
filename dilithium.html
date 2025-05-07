@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dilithium - PQC API</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    Dilithium - PQC API
+  </header>
+  <nav>
+    <a href="./index.html">Home</a>
+    <a href="./kyber.html">Kyber</a>
+    <a href="./dilithium.html">Dilithium</a>
+    <a href="./sphincs.html">Sphincs+</a>
+    <a href="./falcon.html">Falcon</a>
+  </nav>
+  
+  <div class="dilithium-container">
+    <div class="dilithium-title">Dilithium 서명/검증</div>
+    
+    <!-- 보안 레벨 설정 (최상단에 한 번만) -->
+    <div class="dilithium-security">
+      <label class="dilithium-label">보안레벨 설정</label>
+      <select class="dilithium-select" id="global-security-level">
+        <option value="ml-dsa44">Dilithium2</option>
+        <option value="ml-dsa65">Dilithium3</option>
+        <option value="ml-dsa87">Dilithium5</option>
+      </select>
+      <p class="dilithium-warning">선택한 보안레벨은 모든 Dilithium 연산에 적용됩니다.</p>
+    </div>
+    
+    <div class="dilithium-row">
+      <!-- Keypair -->
+      <div class="dilithium-col">
+        <h3>Dilithium Keypair</h3>
+        <button class="dilithium-btn">생성하기</button>
+        <button class="dilithium-btn" style="background:#bdbdbd;">초기화</button>
+        <label class="dilithium-label">공개키 (PK)</label>
+        <textarea class="dilithium-textarea" rows="3" readonly></textarea>
+        <button class="dilithium-copy-btn">COPY PUBLIC KEY</button>
+        <label class="dilithium-label">비밀키 (SK)</label>
+        <textarea class="dilithium-textarea" rows="3" readonly></textarea>
+        <button class="dilithium-copy-btn">COPY PRIVATE KEY</button>
+      </div>
+      
+      <!-- Sign -->
+      <div class="dilithium-col">
+        <h3>Dilithium Sign</h3>
+        <label class="dilithium-label">비밀키 (SK)</label>
+        <input class="dilithium-input" type="text" placeholder="비밀키 입력">
+        
+        <label class="dilithium-label">메시지 (Message)</label>
+        <input class="dilithium-input" type="text" placeholder="메시지 입력">
+        
+        <!-- 파일 직접 선택 버튼 -->
+        <input type="file" id="file-sign" class="dilithium-file-input">
+        <label for="file-sign" class="dilithium-file-btn">
+          <i>📁</i> 파일로 서명하기
+        </label>
+        <div id="file-name-sign" class="dilithium-file-name"></div>
+        
+        <button class="dilithium-btn">서명하기</button>
+        <button class="dilithium-btn" style="background:#bdbdbd;">초기화</button>
+        <label class="dilithium-label">서명값 (Signature)</label>
+        <textarea class="dilithium-textarea" rows="3" readonly></textarea>
+        <button class="dilithium-copy-btn">COPY SIGNATURE</button>
+      </div>
+      
+      <!-- Verify -->
+      <div class="dilithium-col">
+        <h3>Dilithium Verify</h3>
+        <label class="dilithium-label">공개키 (PK)</label>
+        <input class="dilithium-input" type="text" placeholder="공개키 입력">
+        <label class="dilithium-label">서명값 (Signature)</label>
+        <input class="dilithium-input" type="text" placeholder="서명값 입력">
+        
+        <label class="dilithium-label">메시지 (Message)</label>
+        <input class="dilithium-input" type="text" placeholder="메시지 입력">
+        
+        <!-- 파일 직접 선택 버튼 -->
+        <input type="file" id="file-verify" class="dilithium-file-input">
+        <label for="file-verify" class="dilithium-file-btn">
+          <i>📁</i> 파일로 검증하기
+        </label>
+        <div id="file-name-verify" class="dilithium-file-name"></div>
+        
+        <button class="dilithium-btn">검증하기</button>
+        <button class="dilithium-btn" style="background:#bdbdbd;">초기화</button>
+        <div class="dilithium-result">검증결과: <span id="verify-result">-</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

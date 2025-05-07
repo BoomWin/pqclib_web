@@ -1,3 +1,4 @@
+/* index.html */
 body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
@@ -32,3 +33,257 @@ body {
     font-size: 1.1rem;
   }
   
+/* Kyber.html */
+.kyber-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.kyber-title {
+  color: #2196f3;
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+}
+.kyber-security {
+  margin-bottom: 32px;
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+.kyber-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+.kyber-col {
+  flex: 1;
+  min-width: 280px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 18px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.kyber-label {
+  font-weight: bold;
+  margin-top: 12px;
+  display: block;
+}
+.kyber-input, .kyber-select, .kyber-textarea {
+  width: 100%;
+  margin: 8px 0 16px 0;
+  padding: 8px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.kyber-btn {
+  background: #26a69a;
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-right: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+}
+.kyber-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.kyber-copy-btn {
+  width: 100%;
+  background: #e0e0e0;
+  color: #888;
+  border: none;
+  padding: 8px 0;
+  border-radius: 4px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.kyber-result {
+  color: #388e3c;
+  font-weight: bold;
+  margin: 10px 0 0 0;
+}
+.kyber-warning {
+  color: #f57c00;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+.kyber-file-box {
+  margin-top: 30px;
+  padding: 14px;
+  background: #f1f8e9;
+  border: 1px dashed #8bc34a;
+  border-radius: 6px;
+  color: #33691e;
+  font-size: 1rem;
+}
+
+
+  /* Dilithium.html */
+  .dilithium-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .dilithium-title {
+    color: #2196f3;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+  }
+  .dilithium-security {
+    margin-bottom: 32px;
+    background: #f5f5f5;
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 4px solid #2196f3;
+  }
+  .dilithium-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .dilithium-col {
+    flex: 1;
+    min-width: 280px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 18px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .dilithium-label {
+    font-weight: bold;
+    margin-top: 12px;
+    display: block;
+  }
+  .dilithium-input, .dilithium-select, .dilithium-textarea {
+    width: 100%;
+    margin: 8px 0 16px 0;
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  .dilithium-btn {
+    background: #26a69a;
+    color: #fff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-right: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+  }
+  .dilithium-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  .dilithium-copy-btn {
+    width: 100%;
+    background: #e0e0e0;
+    color: #888;
+    border: none;
+    padding: 8px 0;
+    border-radius: 4px;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  .dilithium-result {
+    color: #388e3c;
+    font-weight: bold;
+    margin: 10px 0 0 0;
+  }
+  .dilithium-warning {
+    color: #f57c00;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+  .dilithium-file-box {
+    margin-top: 30px;
+    padding: 14px;
+    background: #f1f8e9;
+    border: 1px dashed #8bc34a;
+    border-radius: 6px;
+    color: #33691e;
+    font-size: 1rem;
+  }
+
+  /* Dilithium 파일 입력 관련 스타일 */
+.dilithium-file-input {
+  display: none; /* 기본 파일 입력창 숨김 */
+}
+
+.dilithium-file-label {
+  display: flex;
+  align-items: center;
+  margin: 8px 0 16px 0;
+  padding: 8px 12px;
+  border: 1px dashed #26a69a;
+  border-radius: 4px;
+  background-color: #e0f2f1;
+  color: #00796b;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dilithium-file-label:hover {
+  background-color: #b2dfdb;
+}
+
+.dilithium-file-name {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #616161;
+  word-break: break-all;
+}
+
+.dilithium-radio-group {
+  display: flex;
+  margin: 10px 0;
+  gap: 16px;
+}
+
+.dilithium-radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.dilithium-radio-label input {
+  margin-right: 6px;
+}
+
+/* 파일 버튼 스타일 */
+.dilithium-file-btn {
+  display: inline-block;
+  margin: 10px 0;
+  padding: 8px 16px;
+  background-color: #e0f7fa;
+  color: #0097a7;
+  border: 1px solid #b2ebf2;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.dilithium-file-btn:hover {
+  background-color: #b2ebf2;
+  color: #006064;
+}
+
+.dilithium-file-btn i {
+  margin-right: 6px;
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kyber - PQC API</title>
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+    <header>
+      Kyber - PQC API
+    </header>
+    <nav>
+      <a href="./index.html">Home</a>
+      <a href="./kyber.html">Kyber</a>
+      <a href="./dilithium.html">Dilithium</a>
+      <a href="./sphincs.html">Sphincs+</a>
+      <a href="./falcon.html">Falcon</a>
+    </nav>
+    
+    <div class="kyber-container">
+      <div class="kyber-title">Kyber 키 캡슐화</div>
+      
+      <!-- 보안 레벨 설정 (최상단에 한 번만) -->
+      <div class="kyber-security">
+        <label class="kyber-label">보안레벨 설정</label>
+        <select class="kyber-select" id="global-security-level">
+          <option value="ml-kem512">Kyber512</option>
+          <option value="ml-kem768">Kyber768</option>
+          <option value="ml-kem1024">Kyber1024</option>
+        </select>
+        <p class="kyber-warning">선택한 보안레벨은 모든 Kyber 연산에 적용됩니다.</p>
+      </div>
+      
+      <div class="kyber-row">
+        <!-- Keypair -->
+        <div class="kyber-col">
+          <h3>Kyber Keypair</h3>
+          <button class="kyber-btn">생성하기</button>
+          <button class="kyber-btn" style="background:#bdbdbd;">초기화</button>
+          <label class="kyber-label">공개키 (PK)</label>
+          <textarea class="kyber-textarea" rows="3" readonly></textarea>
+          <button class="kyber-copy-btn">COPY PUBLIC KEY</button>
+          <label class="kyber-label">비밀키 (SK)</label>
+          <textarea class="kyber-textarea" rows="3" readonly></textarea>
+          <button class="kyber-copy-btn">COPY PRIVATE KEY</button>
+        </div>
+        
+        <!-- Encapsulate -->
+        <div class="kyber-col">
+          <h3>Kyber Encapsulate</h3>
+          <label class="kyber-label">공개키 (PK)</label>
+          <input class="kyber-input" type="text" placeholder="공개키 입력">
+          <button class="kyber-btn">캡슐화</button>
+          <button class="kyber-btn" style="background:#bdbdbd;">초기화</button>
+          <label class="kyber-label">암호문 (CT)</label>
+          <textarea class="kyber-textarea" rows="3" readonly></textarea>
+          <button class="kyber-copy-btn">COPY CT</button>
+          <label class="kyber-label">공유키 (SS1)</label>
+          <textarea class="kyber-textarea" rows="2" readonly></textarea>
+          <button class="kyber-copy-btn">COPY SS1</button>
+        </div>
+        
+        <!-- Decapsulate -->
+        <div class="kyber-col">
+          <h3>Kyber Decapsulate</h3>
+          <label class="kyber-label">암호문 (CT)</label>
+          <input class="kyber-input" type="text" placeholder="암호문 입력">
+          <label class="kyber-label">비밀키 (SK)</label>
+          <input class="kyber-input" type="text" placeholder="비밀키 입력">
+          <button class="kyber-btn">복호화</button>
+          <button class="kyber-btn" style="background:#bdbdbd;">초기화</button>
+          <label class="kyber-label">공유키 (SS2)</label>
+          <textarea class="kyber-textarea" rows="2" readonly></textarea>
+          <button class="kyber-copy-btn">COPY SS2</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
