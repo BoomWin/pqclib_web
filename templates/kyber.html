@@ -4,18 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kyber - PQC API</title>
-  <link rel="stylesheet" href="../static/css/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/pqcapi.js')  }}" defer></script>
 </head>
 <body>
     <header>
       Kyber - PQC API
     </header>
     <nav>
-      <a href="./index.html">Home</a>
-      <a href="./kyber.html">Kyber</a>
-      <a href="./dilithium.html">Dilithium</a>
-      <a href="./sphincs.html">Sphincs+</a>
-      <a href="./falcon.html">Falcon</a>
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('kyber') }}">Kyber</a>
+      <a href="{{ url_for('dilithium') }}">Dilithium</a>
+      <a href="{{ url_for('sphincs') }}">Sphincs+</a>
+      <a href="{{ url_for('falcon') }}">Falcon</a>
     </nav>
     
     <div class="kyber-container">
@@ -25,9 +26,9 @@
       <div class="kyber-security">
         <label class="kyber-label">보안레벨 설정</label>
         <select class="kyber-select" id="global-security-level">
-          <option value="ml-kem512">Kyber512</option>
-          <option value="ml-kem768">Kyber768</option>
-          <option value="ml-kem1024">Kyber1024</option>
+          <option value="1">Kyber512</option>
+          <option value="2">Kyber768</option>
+          <option value="3">Kyber1024</option>
         </select>
         <p class="kyber-warning">선택한 보안레벨은 모든 Kyber 연산에 적용됩니다.</p>
       </div>
@@ -36,45 +37,139 @@
         <!-- Keypair -->
         <div class="kyber-col">
           <h3>Kyber Keypair</h3>
-          <button class="kyber-btn">생성하기</button>
-          <button class="kyber-btn" style="background:#bdbdbd;">초기화</button>
+          <button class="kyber-btn" id="generate-keypair">생성하기</button>
+          <button class="kyber-btn" id="reset-keypair" style="background:#bdbdbd;">초기화</button>
           <label class="kyber-label">공개키 (PK)</label>
-          <textarea class="kyber-textarea" rows="3" readonly></textarea>
-          <button class="kyber-copy-btn">COPY PUBLIC KEY</button>
+          <textarea class="kyber-textarea" id="public-key" rows="3" readonly></textarea>
+          <button class="kyber-copy-btn" data-target="public-key">COPY PUBLIC KEY</button>
           <label class="kyber-label">비밀키 (SK)</label>
-          <textarea class="kyber-textarea" rows="3" readonly></textarea>
-          <button class="kyber-copy-btn">COPY PRIVATE KEY</button>
+          <textarea class="kyber-textarea" id="private-key" rows="3" readonly></textarea>
+          <button class="kyber-copy-btn" data-target="private-key">COPY PRIVATE KEY</button>
         </div>
         
         <!-- Encapsulate -->
         <div class="kyber-col">
           <h3>Kyber Encapsulate</h3>
           <label class="kyber-label">공개키 (PK)</label>
-          <input class="kyber-input" type="text" placeholder="공개키 입력">
-          <button class="kyber-btn">캡슐화</button>
-          <button class="kyber-btn" style="background:#bdbdbd;">초기화</button>
+          <input class="kyber-input" id="encapsulate-pk" type="text" placeholder="공개키 입력">
+          <button class="kyber-btn" id="encapsulate">캡슐화</button>
+          <button class="kyber-btn" id="reset-encapsulate" style="background:#bdbdbd;">초기화</button>
           <label class="kyber-label">암호문 (CT)</label>
-          <textarea class="kyber-textarea" rows="3" readonly></textarea>
-          <button class="kyber-copy-btn">COPY CT</button>
+          <textarea class="kyber-textarea" id="ciphertext" rows="3" readonly></textarea>
+          <button class="kyber-copy-btn" data-target="ciphertext">COPY CT</button>
           <label class="kyber-label">공유키 (SS1)</label>
-          <textarea class="kyber-textarea" rows="2" readonly></textarea>
-          <button class="kyber-copy-btn">COPY SS1</button>
+          <textarea class="kyber-textarea" id="shared-secret1" rows="2" readonly></textarea>
+          <button class="kyber-copy-btn" data-target="shared-secret1">COPY SS1</button>
         </div>
         
         <!-- Decapsulate -->
         <div class="kyber-col">
           <h3>Kyber Decapsulate</h3>
           <label class="kyber-label">암호문 (CT)</label>
-          <input class="kyber-input" type="text" placeholder="암호문 입력">
+          <input class="kyber-input" id="decapsulate-ct" type="text" placeholder="암호문 입력">
           <label class="kyber-label">비밀키 (SK)</label>
-          <input class="kyber-input" type="text" placeholder="비밀키 입력">
-          <button class="kyber-btn">복호화</button>
-          <button class="kyber-btn" style="background:#bdbdbd;">초기화</button>
+          <input class="kyber-input" id="decapsulate-sk" type="text" placeholder="비밀키 입력">
+          <button class="kyber-btn" id="decapsulate">복호화</button>
+          <button class="kyber-btn" id="reset-decapsulate" style="background:#bdbdbd;">초기화</button>
           <label class="kyber-label">공유키 (SS2)</label>
-          <textarea class="kyber-textarea" rows="2" readonly></textarea>
-          <button class="kyber-copy-btn">COPY SS2</button>
+          <textarea class="kyber-textarea" id="shared-secret2" rows="2" readonly></textarea>
+          <button class="kyber-copy-btn" data-target="shared-secret2">COPY SS2</button>
         </div>
       </div>
     </div>
+
+    <script>
+      // 보안 레벨 가져오기
+      function getSecurityLevel() {
+        return parseInt(document.getElementById('global-security-level').value);
+      }
+
+      // 키쌍 생성
+      document.getElementById('generate-keypair').addEventListener('click', async () => {
+        try {
+          const result = await pqcApi.generateKyberKeyPair(getSecurityLevel());
+          document.getElementById('public-key').value = result.publicKey;
+          document.getElementById('private-key').value = result.privateKey;
+        } catch (error) {
+          alert('키쌍 생성에 실패했습니다: ' + error.message);
+        }
+      });
+
+      // 키쌍 초기화
+      document.getElementById('reset-keypair').addEventListener('click', () => {
+        document.getElementById('public-key').value = '';
+        document.getElementById('private-key').value = '';
+      });
+
+      // 캡슐화
+      document.getElementById('encapsulate').addEventListener('click', async () => {
+        const publicKey = document.getElementById('encapsulate-pk').value;
+        if (!publicKey) {
+          alert('공개키를 입력해주세요.');
+          return;
+        }
+
+        try {
+          const result = await pqcApi.encapsulateKyber(publicKey, getSecurityLevel());
+          document.getElementById('ciphertext').value = result.ciphertext;
+          document.getElementById('shared-secret1').value = result.sharedSecret;
+        } catch (error) {
+          alert('캡슐화에 실패했습니다: ' + error.message);
+        }
+      });
+
+      // 캡슐화 초기화
+      document.getElementById('reset-encapsulate').addEventListener('click', () => {
+        document.getElementById('encapsulate-pk').value = '';
+        document.getElementById('ciphertext').value = '';
+        document.getElementById('shared-secret1').value = '';
+      });
+
+      // 디캡슐화
+      document.getElementById('decapsulate').addEventListener('click', async () => {
+        const ciphertext = document.getElementById('decapsulate-ct').value;
+        const privateKey = document.getElementById('decapsulate-sk').value;
+        if (!ciphertext || !privateKey) {
+          alert('암호문과 비밀키를 입력해주세요.');
+          return;
+        }
+
+        try {
+          const result = await pqcApi.decapsulateKyber(ciphertext, privateKey, getSecurityLevel());
+          document.getElementById('shared-secret2').value = result.sharedSecret;
+          
+        } catch (error) {
+          alert('디캡슐화에 실패했습니다: ' + error.message);
+        }
+      });
+
+      // 디캡슐화 초기화
+      document.getElementById('reset-decapsulate').addEventListener('click', () => {
+        document.getElementById('decapsulate-ct').value = '';
+        document.getElementById('decapsulate-sk').value = '';
+        document.getElementById('shared-secret2').value = '';
+      });
+
+
+      // 복사 버튼 기능
+    document.querySelectorAll('.kyber-copy-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        const text = document.getElementById(targetId).value;
+        if (text) {
+          navigator.clipboard.writeText(text).then(() => {
+            alert('복사되었습니다.');
+          }).catch(err => {
+            console.error('복사 실패:', err);
+          });
+        } else {
+          alert('복사할 내용이 없습니다.');
+        }
+      });
+    });
+
+    </script>
+
+
   </body>
 </html>
