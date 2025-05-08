@@ -9,7 +9,15 @@ app = Flask(__name__)
 # C 라이브러리 로드
 current_dir = os.path.dirname(os.path.abspath(__file__))
 lib_path = os.path.join(current_dir, 'lib', 'libpqcapi_1.0-x64_linux_type1.so')
-pqc_lib = ctypes.CDLL(lib_path)
+
+# 라이브러리 로드 전에 파일 확인
+if not os.path.exists(lib_path):
+    print(f"ERROR: Library file not found: {lib_path}")
+try:
+    pqc_lib = ctypes.CDLL(lib_path)
+    print(f"Successfully loaded library: {lib_path}")
+except Exception as e:
+    print(f"ERROR loading library: {e}")
 
 # 알고리즘 상수 정의
 ALG_MLKEM512 = 1
@@ -101,7 +109,7 @@ def get_kyber_size(security_level):
     
 # 보안 레벨에 맞게 사이즈 할당.
 def get_dilithium_sizes(security_level):
-   if security_level == ALG_MLDSA44:
+    if security_level == ALG_MLDSA44:
         return {
             'pk_size': MLDSA44_PUBLIC_KEY_BYTES,
             'sk_size': MLDSA44_SECRET_KEY_BYTES,
@@ -139,12 +147,13 @@ def dilithium_page():
 @app.route('/api/kyber/keypair', methods=['POST'])
 def kyber_keypair():
     data = request.json
+    print(f"Received data: {data}") # 디버깅용 로그 추가
     # 이 부분은 서큐리티 레벨에 맞게 바껴야할듯 정적말고 동적으로 자바스크립트랑 통신해야할듯.
     # 이미 서큐리티레벨에 따라서 구현되게끔 바뀐 것 같기도 data.get이 securityLevel에 따라서 주는 것 같음.,
     security_level = data.get('securityLevel', ALG_MLKEM512)
 
     try:
-        sizes = get_kyber_sizes(security_level)
+        sizes = get_kyber_size(security_level)
         # pk 보안 레벨에 맞게 사이즈 할당됨.
         pk = (ctypes.c_ubyte * sizes['pk_size'])()
         # sk 보안 레벨에 맞게 사이즈 할당됨.
@@ -169,13 +178,13 @@ def kyber_keypair():
 def kyber_encapsulate():
     data = request.json
     security_level = data.get('securityLevel', ALG_MLKEM512)
-    public_key_base64 = data.get('publickey')
+    public_key_base64 = data.get('publicKey')
 
     if not public_key_base64:
         return jsonify({'error': 'Public key is required'}), 400
     
     try:
-        sizes = get_kyber_sizes(security_level)
+        sizes = get_kyber_size(security_level)
         public_key_bytes = base64.b64decode(public_key_base64)
 
         if len(public_key_bytes) != sizes['pk_size']:
@@ -213,7 +222,7 @@ def kyber_decapsulate():
         return jsonify({'error': 'Ciphertext and private key are required'}), 400
     
     try:
-        sizes = get_kyber_sizes(security_level)
+        sizes = get_kyber_size(security_level)
         ciphertext_bytes = base64.b64decode(ciphertext_base64)
         private_key_bytes = base64.b64decode(private_key_base64)
 

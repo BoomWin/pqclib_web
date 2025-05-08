@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PQC API - Main Page</title>
-  <link rel="stylesheet" href="../static/css/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/pqcapi.js') }}"></script>
 <body>
   <header>
     PQC API - Main Page
   </header>
   <nav>
-    <a href="./index.html">Home</a>
-    <a href="./kyber.html">Kyber</a>
-    <a href="./dilithium.html">Dilithium</a>
-    <a href="./sphincs.html">Sphincs+</a>
-    <a href="./falcon.html">Falcon</a>
+    <a href="{{ url_for('index') }}">Home</a>
+       <!-- 수정 후 -->
+   <a href="{{ url_for('kyber_page') }}">Kyber</a>
+   <a href="{{ url_for('dilithium_page') }}">Dilithium</a>
   </nav>
   <main>
     <p>
