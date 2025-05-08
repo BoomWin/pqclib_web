@@ -151,7 +151,7 @@ def kyber_keypair():
     # 이 부분은 서큐리티 레벨에 맞게 바껴야할듯 정적말고 동적으로 자바스크립트랑 통신해야할듯.
     # 이미 서큐리티레벨에 따라서 구현되게끔 바뀐 것 같기도 data.get이 securityLevel에 따라서 주는 것 같음.,
     security_level = data.get('securityLevel', ALG_MLKEM512)
-
+    
     try:
         sizes = get_kyber_size(security_level)
         # pk 보안 레벨에 맞게 사이즈 할당됨.
@@ -165,69 +165,87 @@ def kyber_keypair():
         # 함수 호출 결과 체크. 0보다 작으면 에러임.
         if result < 0:
             return jsonify({'error': f'Keypair generation failed with code: {result}'}), 500
-        # 정상적으로 키쌍 생성되면 키쌍 반환.
+        
+        # Base64 대신 Hex 인코딩 사용
+        pk_hex = bytes(pk).hex()
+        sk_hex = bytes(sk).hex()
+        
         return jsonify({
-            'publicKey': base64.b64encode(bytes(pk)).decode('utf-8'),
-            'privateKey': base64.b64encode(bytes(sk)).decode('utf-8')
+            'publicKey': pk_hex,
+            'privateKey': sk_hex
         })
     except ValueError as e:
-            return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 400
 
 # API 엔드포인트 : Kyber 캡슐화
 @app.route('/api/kyber/encapsulate', methods=['POST'])
 def kyber_encapsulate():
     data = request.json
     security_level = data.get('securityLevel', ALG_MLKEM512)
-    public_key_base64 = data.get('publicKey')
-
-    if not public_key_base64:
+    public_key_hex = data.get('publicKey')
+    
+    if not public_key_hex:
         return jsonify({'error': 'Public key is required'}), 400
     
     try:
         sizes = get_kyber_size(security_level)
-        public_key_bytes = base64.b64decode(public_key_base64)
-
+        
+        # Hex 문자열을 바이트로 변환
+        try:
+            public_key_bytes = bytes.fromhex(public_key_hex)
+        except ValueError:
+            return jsonify({'error': 'Invalid hex format for public key'}), 400
+        
         if len(public_key_bytes) != sizes['pk_size']:
             return jsonify({'error': f'Invalid public key size. Expected {sizes["pk_size"]} bytes'}), 400
-
+        
         pk = (ctypes.c_ubyte * sizes['pk_size'])()
         for i, b in enumerate(public_key_bytes):
             pk[i] = b
-
+        
         ct = (ctypes.c_ubyte * sizes['ct_size'])()
         ss = (ctypes.c_ubyte * sizes['ss_size'])()
-
+        
         result = pqc_lib.Kem_Encapsulate(ct, ss, pk, security_level)
-
+        
         if result < 0:
             return jsonify({'error': f'Encapsulation failed with code: {result}'}), 500
-            
+        
+        # Hex 인코딩 사용
+        ct_hex = bytes(ct).hex()
+        ss_hex = bytes(ss).hex()
+        
         return jsonify({
-            'ciphertext': base64.b64encode(bytes(ct)).decode('utf-8'),
-            'sharedSecret': base64.b64encode(bytes(ss)).decode('utf-8')
+            'ciphertext': ct_hex,
+            'sharedSecret': ss_hex
         })
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
-
 
 # API 엔드포인트 : Kyber 복호화
 @app.route('/api/kyber/decapsulate', methods=['POST'])
 def kyber_decapsulate():
     data = request.json
     security_level = data.get('securityLevel', ALG_MLKEM512)
-    ciphertext_base64 = data.get('ciphertext')
-    private_key_base64 = data.get('privateKey')
-
-    if not ciphertext_base64 or not private_key_base64:
+    ciphertext_hex = data.get('ciphertext')
+    private_key_hex = data.get('privateKey')
+    
+    if not ciphertext_hex or not private_key_hex:
         return jsonify({'error': 'Ciphertext and private key are required'}), 400
     
     try:
         sizes = get_kyber_size(security_level)
-        ciphertext_bytes = base64.b64decode(ciphertext_base64)
-        private_key_bytes = base64.b64decode(private_key_base64)
-
+        
+        # Hex 문자열을 바이트로 변환
+        try:
+            ciphertext_bytes = bytes.fromhex(ciphertext_hex)
+            private_key_bytes = bytes.fromhex(private_key_hex)
+        except ValueError:
+            return jsonify({'error': 'Invalid hex format for ciphertext or private key'}), 400
+        
         if len(ciphertext_bytes) != sizes['ct_size']:
             return jsonify({'error': f'Invalid ciphertext size. Expected {sizes["ct_size"]} bytes'}), 400
+        
         if len(private_key_bytes) != sizes['sk_size']:
             return jsonify({'error': f'Invalid private key size. Expected {sizes["sk_size"]} bytes'}), 400
         
@@ -240,18 +258,20 @@ def kyber_decapsulate():
             sk[i] = b
         
         ss = (ctypes.c_ubyte * sizes['ss_size'])()
-
+        
         result = pqc_lib.Kem_Decapsulate(ss, ct, sk, security_level)
-
+        
         if result < 0:
             return jsonify({'error': f'Decapsulation failed with code: {result}'}), 500
         
+        # Hex 인코딩 사용
+        ss_hex = bytes(ss).hex()
+        
         return jsonify({
-            'sharedSecret': base64.b64encode(bytes(ss)).decode('utf-8')
+            'sharedSecret': ss_hex
         })
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

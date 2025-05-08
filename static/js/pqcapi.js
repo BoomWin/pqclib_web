@@ -7,10 +7,9 @@ class PQCAPI {
     // Kyber 키쌍 생성
     async generateKyberKeyPair(securityLevel) {
         try {
-
             console.log(`Sending request to: ${this.baseURL}/kyber/keypair`);
             console.log(`Security level: ${securityLevel}`);
-            // 작은 따옴표(')가 아닌 백틱(`)을 사용하세요
+            
             const response = await fetch(`${this.baseURL}/kyber/keypair`, {
                 method: 'POST',
                 headers: {
@@ -18,18 +17,15 @@ class PQCAPI {
                 },
                 body: JSON.stringify({ securityLevel })
             });
-
-            console.log('Response status: ${response.status}');
-            const responseText = await response.text();
-            console.log('Response text: ${responseText}');
+            
+            console.log(`Response status: ${response.status}`);
             
             if (!response.ok) {
+                const error = await response.json();
                 throw new Error(error.error || 'Failed to generate keypair');
             }
-
-            // 텍스트를 JSON으로 파싱
-            const jsonData = JSON.parse(responseText);
-            return jsonData;
+            
+            return await response.json();
         } catch (error) {
             console.error('Failed to generate Kyber keypair:', error);
             throw error;
@@ -39,7 +35,6 @@ class PQCAPI {
     // Kyber 캡슐화
     async encapsulateKyber(publicKey, securityLevel) {
         try {
-            // 백틱 사용
             const response = await fetch(`${this.baseURL}/kyber/encapsulate`, {
                 method: 'POST',
                 headers: {
@@ -63,7 +58,6 @@ class PQCAPI {
     // Kyber 복호화
     async decapsulateKyber(ciphertext, privateKey, securityLevel) {
         try {
-            // 백틱 사용
             const response = await fetch(`${this.baseURL}/kyber/decapsulate`, {
                 method: 'POST',
                 headers: {
@@ -82,6 +76,14 @@ class PQCAPI {
             console.error('Failed to decapsulate Kyber:', error);
             throw error;
         }
+    }
+    
+    // 헥스 문자열 형식화 (선택적)
+    formatHex(hexString, displayLength = 8) {
+        if (!hexString) return '';
+        if (hexString.length <= displayLength * 2) return hexString;
+        return hexString.substring(0, displayLength) + '...' + 
+               hexString.substring(hexString.length - displayLength);
     }
 }
 
