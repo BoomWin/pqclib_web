@@ -140,6 +140,7 @@ def dilithium_page():
 def kyber_keypair():
     data = request.json
     # 이 부분은 서큐리티 레벨에 맞게 바껴야할듯 정적말고 동적으로 자바스크립트랑 통신해야할듯.
+    # 이미 서큐리티레벨에 따라서 구현되게끔 바뀐 것 같기도 data.get이 securityLevel에 따라서 주는 것 같음.,
     security_level = data.get('securityLevel', ALG_MLKEM512)
 
     try:
@@ -165,3 +166,82 @@ def kyber_keypair():
 
 # API 엔드포인트 : Kyber 캡슐화
 @app.route('/api/kyber/encapsulate', methods=['POST'])
+def kyber_encapsulate():
+    data = request.json
+    security_level = data.get('securityLevel', ALG_MLKEM512)
+    public_key_base64 = data.get('publickey')
+
+    if not public_key_base64:
+        return jsonify({'error': 'Public key is required'}), 400
+    
+    try:
+        sizes = get_kyber_sizes(security_level)
+        public_key_bytes = base64.b64decode(public_key_base64)
+
+        if len(public_key_bytes) != sizes['pk_size']:
+            return jsonify({'error': f'Invalid public key size. Expected {sizes["pk_size"]} bytes'}), 400
+
+        pk = (ctypes.c_ubyte * sizes['pk_size'])()
+        for i, b in enumerate(public_key_bytes):
+            pk[i] = b
+
+        ct = (ctypes.c_ubyte * sizes['ct_size'])()
+        ss = (ctypes.c_ubyte * sizes['ss_size'])()
+
+        result = pqc_lib.Kem_Encapsulate(ct, ss, pk, security_level)
+
+        if result < 0:
+            return jsonify({'error': f'Encapsulation failed with code: {result}'}), 500
+            
+        return jsonify({
+            'ciphertext': base64.b64encode(bytes(ct)).decode('utf-8'),
+            'sharedSecret': base64.b64encode(bytes(ss)).decode('utf-8')
+        })
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+
+# API 엔드포인트 : Kyber 복호화
+@app.route('/api/kyber/decapsulate', methods=['POST'])
+def kyber_decapsulate():
+    data = request.json
+    security_level = data.get('securityLevel', ALG_MLKEM512)
+    ciphertext_base64 = data.get('ciphertext')
+    private_key_base64 = data.get('privateKey')
+
+    if not ciphertext_base64 or not private_key_base64:
+        return jsonify({'error': 'Ciphertext and private key are required'}), 400
+    
+    try:
+        sizes = get_kyber_sizes(security_level)
+        ciphertext_bytes = base64.b64decode(ciphertext_base64)
+        private_key_bytes = base64.b64decode(private_key_base64)
+
+        if len(ciphertext_bytes) != sizes['ct_size']:
+            return jsonify({'error': f'Invalid ciphertext size. Expected {sizes["ct_size"]} bytes'}), 400
+        if len(private_key_bytes) != sizes['sk_size']:
+            return jsonify({'error': f'Invalid private key size. Expected {sizes["sk_size"]} bytes'}), 400
+        
+        ct = (ctypes.c_ubyte * sizes['ct_size'])()
+        for i, b in enumerate(ciphertext_bytes):
+            ct[i] = b
+        
+        sk = (ctypes.c_ubyte * sizes['sk_size'])()
+        for i, b in enumerate(private_key_bytes):
+            sk[i] = b
+        
+        ss = (ctypes.c_ubyte * sizes['ss_size'])()
+
+        result = pqc_lib.Kem_Decapsulate(ss, ct, sk, security_level)
+
+        if result < 0:
+            return jsonify({'error': f'Decapsulation failed with code: {result}'}), 500
+        
+        return jsonify({
+            'sharedSecret': base64.b64encode(bytes(ss)).decode('utf-8')
+        })
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+
+            
