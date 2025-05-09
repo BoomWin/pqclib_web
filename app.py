@@ -8,6 +8,8 @@ app = Flask(__name__)
 
 # C 라이브러리 로드
 current_dir = os.path.dirname(os.path.abspath(__file__))
+# 라이브러리 다른거 불러올려면 이 부분 수정하면됨.
+# 운영환경 교체를 말하는 것임.
 lib_path = os.path.join(current_dir, 'lib', 'libpqcapi_1.0-x64_linux_type1.so')
 
 # 라이브러리 로드 전에 파일 확인
@@ -279,5 +281,36 @@ def kyber_decapsulate():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
+# API 엔드포인트 : Dilithium 키쌍 생성
+# /api/dilithium/keypair 경로로 들어온 HTTP 'POST' 요청을 처리하는 엔드포인트 정의.
+@app.route('/api/dilithium/keypair', methods=['POST'])
+def dilithium_keypair():
+    data = request.json
+    print(f"Received data: {data}") # 디버깅용 로그
+
+    security_level = data.get('securityLevel', ALG_MLDSA44)
+
+    try:
+        sizes = get_dilithium_sizes(security_level)
+        pk = (ctypes.c_ubyte * sizes['pk_size'])()
+        sk = (ctypes.c_ubyte * sizes['sk_size'])()
+
+        # 실제 함수 호출 부분
+        result = pqc_lib.Sign_Keypair(pk, sk, security_level)
+
+        # 함수 호출 결과 체크, 0보다 작으면 에러
+        if result < 0:
+            return jsonify({'error': f'Keypair generation failed with code: {result}'}), 500
+        
+        # Hex 인코딩 사용
+        pk_hex = bytes(pk).hex()
+        sk_hex = bytes(sk).hex()
+
+        return jsonify({
+            'publicKey': pk_hex,
+            'privateKey': sk_hex
+        })
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

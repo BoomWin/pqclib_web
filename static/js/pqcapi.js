@@ -3,7 +3,7 @@ class PQCAPI {
     constructor() {
         this.baseURL = 'http://localhost:5000/api';
     }
-
+   
     // Kyber 키쌍 생성
     async generateKyberKeyPair(securityLevel) {
         try {
@@ -77,14 +77,36 @@ class PQCAPI {
             throw error;
         }
     }
-    
-    // 헥스 문자열 형식화 (선택적)
-    formatHex(hexString, displayLength = 8) {
-        if (!hexString) return '';
-        if (hexString.length <= displayLength * 2) return hexString;
-        return hexString.substring(0, displayLength) + '...' + 
-               hexString.substring(hexString.length - displayLength);
+
+     // Dilithium 키쌍 생성
+     async generateDilithiumKeyPair(securityLevel) {
+        try {
+            console.log(`Sending request to: ${this.baseURL}/dilithium/keypair`);
+            console.log(`Security level: ${securityLevel}`);
+
+            const response = await fetch(`${this.baseURL}/dilithium/keypair`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ securityLevel })
+            });
+
+            console.log(`Response status: ${response.status}`);
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to generate keypair');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to generate Dilithium keypair:', error);
+            throw error;
+        }
     }
+
+    
 }
 
 // 전역 PQC API 인스턴스 생성

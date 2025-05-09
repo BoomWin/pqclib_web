@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dilithium - PQC API</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/pqcapi.js') }}" defer></script>
 </head>
 <body>
   <header>
@@ -34,8 +35,8 @@
       <!-- Keypair -->
       <div class="dilithium-col">
         <h3>Dilithium Keypair</h3>
-        <button class="dilithium-btn" id="ml-dsa-generate-keypair">생성하기</button>
-        <button class="dilithium-btn" id="ml-dsa-reset-keypair" style="background:#bdbdbd;">초기화</button>
+        <button class="dilithium-btn" id="ml-dsa-generate-keypair-btn">생성하기</button>
+        <button class="dilithium-btn" id="ml-dsa-reset-keypair-btn" style="background:#bdbdbd;">초기화</button>
         <label class="dilithium-label">공개키 (PK)</label>
         <textarea class="dilithium-textarea" id="ml-dsa-public-key" rows="3" readonly></textarea>
         <button class="dilithium-copy-btn" data-target="ml-dsa-public-key">COPY PUBLIC KEY</button>
@@ -60,8 +61,8 @@
         </label>
         <div id="file-name-sign" class="dilithium-file-name"></div>
         
-        <button class="dilithium-btn" id="ml-dsa-sign">서명하기</button>
-        <button class="dilithium-btn" id="reset-sign" style="background:#bdbdbd;">초기화</button>
+        <button class="dilithium-btn" id="ml-dsa-sign-btn">서명하기</button>
+        <button class="dilithium-btn" id="reset-sign-btn" style="background:#bdbdbd;">초기화</button>
         <label class="dilithium-label">서명값 (Signature)</label>
         <textarea class="dilithium-textarea" rows="3" readonly></textarea>
         <button class="dilithium-copy-btn">COPY SIGNATURE</button>
@@ -85,8 +86,8 @@
         </label>
         <div id="file-name-verify" class="dilithium-file-name"></div>
         
-        <button class="dilithium-btn" id="ml-dsa-verify">검증하기</button>
-        <button class="dilithium-btn" id="reset-verify" style="background:#bdbdbd;">초기화</button>
+        <button class="dilithium-btn" id="ml-dsa-verify-btn">검증하기</button>
+        <button class="dilithium-btn" id="reset-verify-btn" style="background:#bdbdbd;">초기화</button>
         <div class="dilithium-result">검증결과: <span id="verify-result">-</span></div>
       </div>
     </div>
@@ -111,67 +112,68 @@
         }
       });
 
-          // 파일 선택 시 메시지 입력 비활성화
-    fileInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
+      // 파일 선택 시 메시지 입력 비활성화
+      fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
 
-      if (file) {
-        messageInput.disabled = true;
-        messageInput.value = '';
-        fileNameDisplay.textContent = file.name;
-      }
-      else {
-        messageInput.disabled = false;
-        fileNameDisplay.textContent = '';
-      }
-    });
-
-    // 검증 부분에도 동일한 로직 적용
-    const verifyMessageInput = document.getElementById('ml-dsa-verify-msg');
-    const verifyFileInput = document.getElementById('file-verify');
-    const verifyFileNameDisplay = document.getElementById('file-name-verify');
-    
-    // 메시지 입력 시 파일 선택 비활성화
-    verifyMessageInput.addEventListener('input', () => {
-      if (verifyMessageInput.value.trim()) {
-        verifyFileInput.disabled = true;
-        // 파일 선택이 되어 있었다면 초기화
-        verifyFileInput.value = '';
-        verifyFileNameDisplay.textContent = '';
-      } else {
-        verifyFileInput.disabled = false;
-      }
-    });
-    
-    // 파일 선택 시 메시지 입력 비활성화
-    verifyFileInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      
-      if (file) {
-        verifyMessageInput.disabled = true;
-        verifyMessageInput.value = '';
-        verifyFileNameDisplay.textContent = file.name;
-      } else {
-        verifyMessageInput.disabled = false;
-        verifyFileNameDisplay.textContent = '';
-      }
-    });
-    
-    // 초기화 버튼 기능 구현
-    const resetSignButton = document.getElementById('reset-sign');
-    if (resetSignButton) {
-      resetSignButton.addEventListener('click', () => {
-        messageInput.value = '';
-        messageInput.disabled = false;
-        fileInput.value = '';
-        fileInput.disabled = false;
-        fileNameDisplay.textContent = '';
-        document.getElementById('ml-dsa-sign-sk').value = '';
-        document.getElementById('ml-dsa-signature').value = '';
+        if (file) {
+          messageInput.disabled = true;
+          messageInput.value = '';
+          fileNameDisplay.textContent = file.name;
+        }
+        else {
+          messageInput.disabled = false;
+          fileNameDisplay.textContent = '';
+        }
       });
-    }
-  
-      const resetVerifyButton = document.getElementById('reset-verify');
+
+      // 검증 부분에도 동일한 로직 적용
+      const verifyMessageInput = document.getElementById('ml-dsa-verify-msg');
+      const verifyFileInput = document.getElementById('file-verify');
+      const verifyFileNameDisplay = document.getElementById('file-name-verify');
+      
+      // 메시지 입력 시 파일 선택 비활성화
+      verifyMessageInput.addEventListener('input', () => {
+        if (verifyMessageInput.value.trim()) {
+          verifyFileInput.disabled = true;
+          // 파일 선택이 되어 있었다면 초기화
+          verifyFileInput.value = '';
+          verifyFileNameDisplay.textContent = '';
+        } else {
+          verifyFileInput.disabled = false;
+        }
+      });
+      
+      // 파일 선택 시 메시지 입력 비활성화
+      verifyFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        
+        if (file) {
+          verifyMessageInput.disabled = true;
+          verifyMessageInput.value = '';
+          verifyFileNameDisplay.textContent = file.name;
+        } else {
+          verifyMessageInput.disabled = false;
+          verifyFileNameDisplay.textContent = '';
+        }
+      });
+
+      
+      // 초기화 버튼 기능 구현
+      const resetSignButton = document.getElementById('reset-sign-btn');
+      if (resetSignButton) {
+        resetSignButton.addEventListener('click', () => {
+          messageInput.value = '';
+          messageInput.disabled = false;
+          fileInput.value = '';
+          fileInput.disabled = false;
+          fileNameDisplay.textContent = '';
+          document.getElementById('ml-dsa-sign-sk').value = '';
+          document.getElementById('ml-dsa-signature').value = '';
+        });
+      }
+    
+      const resetVerifyButton = document.getElementById('reset-verify-btn');
       if (resetVerifyButton) {
         resetVerifyButton.addEventListener('click', () => {
           verifyMessageInput.value = '';
@@ -185,6 +187,91 @@
           document.getElementById('verify-result').style.color = '';
         });
       }
+    });
+
+
+    // dilithium 보안 레벨 가져오기 (모든 연산을 위해 필요함)
+    function getSecurityLevel() {
+      return parseInt(document.getElementById('global-security-level').value);
+    }
+
+    // dilithium keypair 생성 기능 처리 버튼 정의
+    document.getElementById('ml-dsa-generate-keypair-btn').addEventListener('click', async () => {
+      try {
+        const result = await pqcApi.generateDilithiumKeyPair(getSecurityLevel());
+        document.getElementById('ml-dsa-public-key').value = result.publicKey;
+        document.getElementById('ml-dsa-private-key').value = result.privateKey;
+      }
+      catch (error) {
+        alert('키쌍 생성에 실패했습니다: ' + error.message);
+      }
+    });
+
+    // dilithium 키 쌍 초기화 기능 처리 버튼 정의
+    document.getElementById('ml-dsa-reset-keypair-btn').addEventListener('click', () => {
+      document.getElementById('ml-dsa-public-key').value = '';
+      document.getElementById('ml-dsa-private-key').value = '';
+    });
+
+
+
+    // dilithium 서명 기능 처리 버튼 정의
+    // 서명하기 버튼에 이벤트 리스너 추가해서 웹 <-> js <-> flask 통신 유도
+    documnet.getElementById('ml-dsa-sign-button').addEventListener('click', async () => {
+      const privateKey = document.getElementById('ml-dsa-sign-sk').value;
+      const messageInput = document.getElementById('ml-dsa-sign-msg').value;
+      const fileInput = document.getElementById('file-sign');
+
+      if (!privateKey) {
+        alert('비밀키를 입력해주세요.');
+        return;
+      }
+
+      try {
+        // 텍스트 메시지를 바이트 배열로 저장할 변수
+        let message;
+        // 1차 if로 이후에는 else if로 구성할 예정
+        // 메시지 입력과 파일 선택 중 어떤 것이 활성화되어 있는지 확인
+        if (!messageInput.disabled && messageInput.value.trim()) {
+          // 사용자가 메시지를 직접 입력한 경우
+          const encoder = new TextEncoder();
+          message = encoder.encode(messageInput.value);
+        }
+        // 파일 선택 입력이 활성화 되어 있고 값이 있는 경우
+        else if (!fileInput.disabled && fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const fileReader = new FileReader();
+
+        // 파일 읽기 Promise 생성
+        // 근데 파일 읽기 할 때 일정 용량 넘어가면 거부 떄리는 것 넣어줘야 할듯 서버터질 것 같음.
+        const fileLoadPromise = new Promise((resolve, reject) => {
+          fileReader.onload = (e) => resolve(e.target.result);
+          fileReader.onerror = (e) => reject(new Error('파일 읽기 실패'));
+
+        });
+
+        // 파일을 ArrayBuffer로 읽기
+        fileReader.readAsArrayBuffer(file);
+
+        // 파일 읽기 완료 대기
+        const fileData = await fileLoadPromise;
+        message = new Uint8Array(fileData);
+        }
+
+        // 메시지도, 파일도 없는 경우
+        else {
+          alert('메시지 입력 또는 파일을 선택해주세요.');
+          return;
+        }
+        
+        // 보안 레벨 가져오기
+        const securityLevel = getSecurityLevel();
+
+        // 서명 생성 API 호출
+        const result = await pacApi.singDilithium(message, privateKey, securityLevel);
+
+      }
+
     });
 
 
