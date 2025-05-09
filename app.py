@@ -148,8 +148,9 @@ def dilithium_page():
 def kyber_keypair():
     data = request.json
     print(f"Received data: {data}") # 디버깅용 로그 추가
-    # 이 부분은 서큐리티 레벨에 맞게 바껴야할듯 정적말고 동적으로 자바스크립트랑 통신해야할듯.
+
     # 이미 서큐리티레벨에 따라서 구현되게끔 바뀐 것 같기도 data.get이 securityLevel에 따라서 주는 것 같음.,
+    # 초기 값으로 ALG_MLKEM512 주고 시작.
     security_level = data.get('securityLevel', ALG_MLKEM512)
     
     try:
@@ -166,7 +167,7 @@ def kyber_keypair():
         if result < 0:
             return jsonify({'error': f'Keypair generation failed with code: {result}'}), 500
         
-        # Base64 대신 Hex 인코딩 사용
+        # Hex 인코딩 사용
         pk_hex = bytes(pk).hex()
         sk_hex = bytes(sk).hex()
         
@@ -259,14 +260,19 @@ def kyber_decapsulate():
         
         ss = (ctypes.c_ubyte * sizes['ss_size'])()
         
+        print(f"입력된 비밀키: {private_key_hex[:20]}...")
+
         result = pqc_lib.Kem_Decapsulate(ss, ct, sk, security_level)
-        
+
         if result < 0:
             return jsonify({'error': f'Decapsulation failed with code: {result}'}), 500
-        
+
         # Hex 인코딩 사용
         ss_hex = bytes(ss).hex()
-        
+
+        # 함수 실행 후 로깅
+        print(f"생성된 공유키: {ss_hex}")
+
         return jsonify({
             'sharedSecret': ss_hex
         })

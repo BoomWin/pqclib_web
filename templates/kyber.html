@@ -127,6 +127,7 @@
       // 디캡슐화
       document.getElementById('decapsulate').addEventListener('click', async () => {
         const ciphertext = document.getElementById('decapsulate-ct').value;
+        
         const privateKey = document.getElementById('decapsulate-sk').value;
         if (!ciphertext || !privateKey) {
           alert('암호문과 비밀키를 입력해주세요.');
