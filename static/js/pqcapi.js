@@ -106,7 +106,27 @@ class PQCAPI {
         }
     }
 
-    
+    async signDilithium(message, privateKey, securityLevel) {
+        try {
+            const response = await fetch(`${this.baseURL}/dilithium/sign`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message, privateKey, securityLevel })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to sign');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to sign Dilithium:', error);
+            throw error;
+        }
+    }
 }
 
 // 전역 PQC API 인스턴스 생성
