@@ -312,5 +312,38 @@ def dilithium_keypair():
         })
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+    
+# API 엔드포인트 : Dilithium 서명
+# @app.route('/api/dilithium/sign', methods=['POST'])
+# def dilithium_sign():
+#     data = request.json
+#     security_level = data.get('securityLevel', ALG_MLDSA44)
+#     message = data.get('message')
+#     private_key_hex = data.get('privateKey')
+
+#     if not private_key_hex:
+#         return josnify({'error': 'Public Key is required'}), 400
+    
+#     try:
+#         sizes = get_dilithium_sizes(security_level)
+
+#         # Hex 문자열을 바이트로 변환
+#         try:
+#             private_key_bytes = bytes.fromhex(private_key_hex)
+#         except ValueError:
+#             return jsonify({'error': 'Invalid hex format for private key'}), 400
+        
+#         if len(private_key_bytes) != sizes['sk_size']:
+#             return jsonify({'error': f'Invalid private key size. Expected {sizes["sk_size"]} bytes'}), 400
+
+#         sk = (ctypes.c_ubyte * sizes['sk_size'])()
+#         for i, b in enumerate(private_key_bytes):
+#             sk[i] = b
+        
+#         sig = (ctypes.c_ubyte * sizes['sig_size'])()
+
+        
+        
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
