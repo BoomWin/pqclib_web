@@ -190,3 +190,69 @@ document.getElementById('ml-dsa-sign-btn').addEventListener('click', async () =>
   }
 });
 
+// dilithium 검증하기 버튼 처리
+document.getElementById('ml-dsa-verify-btn').addEventListener('click', async () => {
+    const publicKey = document.getElementById('ml-dsa-verify-pk').value;
+    const signature = document.getElementById('ml-dsa-verify-sig').value;
+    const messageInput = document.getElementById('ml-dsa-verify-msg');
+    const fileInput = document.getElementById('file-verify');
+
+    if (!publicKey) {
+        alert('공개키를 입력해주세요.');
+        return;
+    }
+    if (!signature) {
+        alert('서명값을 입력해주세요.');
+        return;
+    }
+
+    try {
+        let message;
+        // 사용자가 메시지를 직접 입력하는 경우.
+        if (!messageInput.disabled && messageInput.value.trim()) {
+            const encoder = new TextEncoder();
+            message = encoder.encode(messageInput.value);
+            message = bytesToHex(message); // hex String으로 변환 백엔드레벨에서 hex를 기대함.
+        }
+
+         // 파일 선택 입력이 활성화 되어 있고 값이 있는 경우
+        else if (!fileInput.disabled && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const fileReader = new FileReader();
+  
+            // 파일 읽기 Promise 생성
+            // 근데 파일 읽기 할 때 일정 용량 넘어가면 거부 떄리는 것 넣어줘야 할듯 서버터질 것 같음.
+            const fileLoadPromise = new Promise((resolve, reject) => {
+                fileReader.onload = (e) => resolve(e.target.result);
+                fileReader.onerror = (e) => reject(new Error('파일 읽기 실패'));
+  
+            });
+  
+            // 파일을 ArrayBuffer로 읽기
+            fileReader.readAsArrayBuffer(file);
+  
+            // 파일 읽기 완료 대기
+            const fileData = await fileLoadPromise;
+            // 파일 읽은거 Uint8 형식의 배열로 message에 넣어줌.
+            message = new Uint8Array(fileData);
+            message = bytesToHex(message); // hex String으로 변환 백엔드레벨에서 hex를 기대함.
+      }
+      // 메시지도 파일도 없는 경우
+      else {
+        alert('메시지 입력 또는 파일을 선택해주세요.');
+        return;
+      }
+
+      // 보안 레벨 가져오기
+      const securityLevel = getSecurityLevel();
+
+      // 검증 결과 표시
+      const result = await pqcApi.verifyDilithium(message, signature, publicKey, securityLevel);
+      console.log('서버 응답:', result); // 이 줄로 실제 값을 콘솔에서 확인
+      document.getElementById('verify-result').textContent = result.valid ? '검증 성공' : '검증 실패';
+
+    }
+    catch (error) {
+      alert('검증 실패했습니다: ' + error.message); 
+    }
+});

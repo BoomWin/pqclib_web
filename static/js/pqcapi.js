@@ -127,6 +127,27 @@ class PQCAPI {
             throw error;
         }
     }
+
+    async verifyDilithium(message, signature, publicKey, securityLevel) {
+        try {
+            const response = await fetch(`${this.baseURL}/dilithium/verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message, signature, publicKey, securityLevel })
+            });
+
+            if(!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to verify');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Failed to verify Dilithium:', error);
+            throw error;
+        }
+    }
 }
 
 // 전역 PQC API 인스턴스 생성

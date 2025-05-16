@@ -1,46 +1,47 @@
-
-# test.py 만들어 놓은 이유는 dilithium 구현할 때 비교해서 보려고 만들어 놓은 것임.
-# API 엔드포인트 : Kyber 캡슐화
-@app.route('/api/kyber/encapsulate', methods=['POST'])
-def kyber_encapsulate():
+# API 엔드포인트 : Dilithium 서명
+@app.route('/api/dilithium/sign', methods=['POST'])
+def dilithium_sign():
     data = request.json
-    security_level = data.get('securityLevel', ALG_MLKEM512)
-    public_key_hex = data.get('publicKey')
-    
-    if not public_key_hex:
-        return jsonify({'error': 'Public key is required'}), 400
+    security_level = data.get('securityLevel', ALG_MLDSA44)
+    message = data.get('message')
+    private_key_hex = data.get('privateKey')
+
+    if not private_key_hex:
+        return jsonify({'error': 'Public Key is required'}), 400
     
     try:
-        sizes = get_kyber_size(security_level)
-        
+        sizes = get_dilithium_sizes(security_level)
+
         # Hex 문자열을 바이트로 변환
         try:
-            public_key_bytes = bytes.fromhex(public_key_hex)
+            message_bytes = bytes.fromhex(message)
+            message_buf = (ctypes.c_ubyte * len(message_bytes))(*message_bytes)
+            private_key_bytes = bytes.fromhex(private_key_hex)
+            
         except ValueError:
-            return jsonify({'error': 'Invalid hex format for public key'}), 400
+            return jsonify({'error': 'Invalid hex format for private key'}), 400
         
-        if len(public_key_bytes) != sizes['pk_size']:
-            return jsonify({'error': f'Invalid public key size. Expected {sizes["pk_size"]} bytes'}), 400
-        
-        pk = (ctypes.c_ubyte * sizes['pk_size'])()
-        for i, b in enumerate(public_key_bytes):
-            pk[i] = b
-        
-        ct = (ctypes.c_ubyte * sizes['ct_size'])()
-        ss = (ctypes.c_ubyte * sizes['ss_size'])()
-        
-        result = pqc_lib.Kem_Encapsulate(ct, ss, pk, security_level)
-        
+        if len(private_key_bytes) != sizes['sk_size']:
+            return jsonify({'error': f'Invalid private key size. Expected {sizes["sk_size"]} bytes'}), 400
+
+        sk = (ctypes.c_ubyte * sizes['sk_size'])()
+        for i, b in enumerate(private_key_bytes):
+            sk[i] = b
+        # c라이브러리에서 호출하기 위해서 사이즈 할당
+        sig = (ctypes.c_ubyte * sizes['sig_size'])()
+        # c 라이브러리에서 siglen도 포인터 형태로 넘겨주기 때문에
+        siglen = ctypes.c_size_t()
+
+        result = pqc_lib.Sign_Signature(sig, ctypes.byref(siglen), message_buf, len(message_bytes), sk, security_level)
+
         if result < 0:
-            return jsonify({'error': f'Encapsulation failed with code: {result}'}), 500
-        
+            return jsonify({'error': f'Signing failed with code: {result}'}), 500
+
         # Hex 인코딩 사용
-        ct_hex = bytes(ct).hex()
-        ss_hex = bytes(ss).hex()
-        
+        sig_hex = bytes(sig).hex()
+
         return jsonify({
-            'ciphertext': ct_hex,
-            'sharedSecret': ss_hex
-        })
+            'Signature' : sig_hex
+        })   
     except ValueError as e:
         return jsonify({'error': str(e)}), 400

@@ -361,5 +361,63 @@ def dilithium_sign():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
+@app.route('/api/dilithium/verify', methods=['POST'])
+def dilithium_verify():
+    data = request.json
+    security_level = data.get('securityLevel', ALG_MLDSA44)
+    public_key_hex = data.get('publicKey')
+    signature_hex = data.get('signature')
+    message = data.get('message')
+
+    if not public_key_hex or not signature_hex:
+        return jsonify({'error': 'Public key and signature are required'}), 400
+    
+    try:
+        sizes = get_dilithium_sizes(security_level)
+
+        # Hex 문자열을 바이트로 변환
+        try:
+            message_bytes = bytes.fromhex(message)
+            message_buf = (ctypes.c_ubyte * len(message_bytes))(*message_bytes)
+            public_key_bytes = bytes.fromhex(public_key_hex)
+            signature_bytes = bytes.fromhex(signature_hex)
+        
+        except ValueError:
+            return jsonify({'error': 'Invalid hex format for message, public key, or signature'}), 400
+
+        if len(public_key_bytes) != sizes['pk_size']:
+            return jsonify({'error': f'Invalid public key size. Expected {sizes["pk_size"]} bytes'}), 400
+        
+        pk = (ctypes.c_ubyte * sizes['pk_size'])()
+        for i, b in enumerate(public_key_bytes):
+            pk[i] = b
+        
+        sig = (ctypes.c_ubyte * sizes['sig_size'])()
+        for i, b in enumerate(signature_bytes):
+            sig[i] = b
+
+        # 검증 함수 호출
+        result = pqc_lib.Sign_Verify(sig, len(signature_bytes), message_buf, len(message_bytes), pk, security_level)
+
+        print(f"검증 결과 result: {result}")  # 디버깅용
+
+        if security_level == ALG_MLDSA44:
+            VERIFY_SUCCESS = 0x00000204
+        elif security_level == ALG_MLDSA65:
+            VERIFY_SUCCESS = 0x00000214
+        elif security_level == ALG_MLDSA87:
+            VERIFY_SUCCESS = 0x00000224
+        else:
+            return jsonify({'error': 'Unknown security level'}), 400
+        
+        if result == VERIFY_SUCCESS:
+            print(f"검증 성공")
+            return jsonify({'valid': True})
+        else:
+            print(f"검증 실패")
+            return jsonify({'valid': False})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
