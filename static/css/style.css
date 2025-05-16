@@ -32,6 +32,63 @@ body {
     text-align: center;
     font-size: 1.1rem;
   }
+  .main-container {
+    max-width: 900px;
+    margin: 60px auto 0 auto;
+    padding: 32px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .pqc-cards {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .pqc-card {
+    background: #f5f8fa;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 32px 24px;
+    width: 220px;
+    transition: box-shadow 0.2s;
+    text-align: center;
+  }
+  .pqc-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    background: #e9f1fa;
+  }
+  .pqc-card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+  .pqc-card-desc {
+    font-size: 0.98rem;
+    color: #555;
+    margin-bottom: 18px;
+  }
+  .pqc-card-link {
+    display: inline-block;
+    padding: 8px 18px;
+    background: #22314a;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .pqc-card-link:hover {
+    background: #1a2536;
+  }
+  .main-desc {
+    margin-top: 16px;
+    color: #333;
+    font-size: 1.1rem;
+  }
   
 /* Kyber.html */
 .kyber-container {

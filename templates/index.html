@@ -8,19 +8,42 @@
   <script src="{{ url_for('static', filename='js/pqcapi.js') }}"></script>
 <body>
   <header>
-    PQC API - Main Page
+    <h1 style="margin-top: 24px; text-align:center;">PQC API - Main Page</h1>
   </header>
   <nav>
     <a href="{{ url_for('index') }}">Home</a>
-       <!-- 수정 후 -->
-   <a href="{{ url_for('kyber_page') }}">Kyber</a>
-   <a href="{{ url_for('dilithium_page') }}">Dilithium</a>
+    <a href="{{ url_for('kyber_page') }}">Kyber</a>
+    <a href="{{ url_for('dilithium_page') }}">Dilithium</a>
   </nav>
-  <main>
+</header>
+<div class="main-container">
+  <div class="main-desc">
     <p>
-      본 웹 페이지는 PQC 라이브러리의<br>
-      테스트를 위해 구현되었습니다.
+      본 웹 페이지는 PQC(양자내성암호) 라이브러리의<br>
+      테스트 및 데모를 위해 구현되었습니다.<br>
+      아래에서 원하는 알고리즘을 선택해 체험해보세요.
     </p>
-  </main>
+  </div>
+  <div class="pqc-cards">
+    <div class="pqc-card">
+      <div class="pqc-card-title">Kyber</div>
+      <div class="pqc-card-desc">NIST 표준 KEM 알고리즘<br>키 교환/캡슐화/디캡슐화</div>
+      <a class="pqc-card-link" href="{{ url_for('kyber_page') }}">Go to Kyber</a>
+    </div>
+    <div class="pqc-card">
+      <div class="pqc-card-title">Dilithium</div>
+      <div class="pqc-card-desc">NIST 표준 DSA 알고리즘<br>서명/검증</div>
+      <a class="pqc-card-link" href="{{ url_for('dilithium_page') }}">Go to Dilithium</a>
+    </div>
+    <!-- 추후 PQC 알고리즘 추가 시 아래처럼 카드만 복사해서 붙이면 됩니다 -->
+    <!--
+    <div class="pqc-card">
+      <div class="pqc-card-title">FrodoKEM</div>
+      <div class="pqc-card-desc">추가 설명</div>
+      <a class="pqc-card-link" href="#">Go to FrodoKEM</a>
+    </div>
+    -->
+  </div>
+</div>
 </body>
 </html>
