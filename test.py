@@ -1,3 +1,5 @@
+
+# test.py 만들어 놓은 이유는 dilithium 구현할 때 비교해서 보려고 만들어 놓은 것임.
 # API 엔드포인트 : Kyber 캡슐화
 @app.route('/api/kyber/encapsulate', methods=['POST'])
 def kyber_encapsulate():
